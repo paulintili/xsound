@@ -9,7 +9,11 @@
 
     // Wait for device API libraries to load
     //
-    document.addEventListener("deviceready", onDeviceReady, false);
+   // document.addEventListener("deviceready", onDeviceReady, false);
+   function onLoad() {
+        document.addEventListener("deviceready", onDeviceReady, false);
+		alert('Jee');
+    }
 
     // device APIs are available
     //
@@ -34,7 +38,7 @@
 
     </script>
   </head>
-  <body>
+  <body onload = "onLoad()">
     <h1>Example</h1>
     <p>getCurrentAcceleration</p>
   </body>
