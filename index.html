@@ -1,63 +1,103 @@
-   <!DOCTYPE html>
-<html>
-  <head>
-    <title>Device Ready Example</title>
+    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+                  "http://www.w3.org/TR/html4/strict.dtd">
+    <html>
+      <head>
+        <title>Media Example</title>
 
-    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-    <script type="text/javascript" charset="utf-8">
+        <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8">
 
-    function onLoad() {
+        // Wait for device API libraries to load
+        //
         document.addEventListener("deviceready", onDeviceReady, false);
-    }
 
-    function onDeviceReady() {
-        alert("Device is Ready");
-        alert(device.available);
-    }
-
-    function getAcceleration(){
-        navigator.accelerometer.getCurrentAcceleration(onAccelSuccess, onError);
-    }
-
-    function onAccelSuccess(acceleration) {
-        var element = document.getElementById('accelerometer');
-        element.innerHTML = 'Acceleration X: ' + acceleration.x         + '<br />' +
-                            'Acceleration Y: ' + acceleration.y         + '<br />' +
-                            'Acceleration Z: ' + acceleration.z         + '<br />' +
-                            'Timestamp: '      + acceleration.timestamp + '<br />';
-    }
-
-    function onError() {
-        alert('onError!');
-    }
-
-    function startWatch() {
-        // Update acceleration every 1 seconds
-        var options = { frequency: 1000 };
-
-        watchID = navigator.accelerometer.watchAcceleration(onAccelSuccess, onError, options);
-    }
-
-    function stopWatch() {
-        if (watchID) {
-            navigator.accelerometer.clearWatch(watchID);
-            watchID = null;
+        // device APIs are available
+        //
+        function onDeviceReady() {
+            playAudio("http://audio.ibeat.org/content/p1rj1s/p1rj1s_-_rockGuitar.mp3");
         }
-    }
-    </script>
-  </head>
-  <body onload="onLoad()">
-    <p>
-        <button onclick="getAcceleration()">Get Acceleration</button>
-    </p>
-    <p>
-        <button onclick="startWatch()">Watch Acceleration</button>
-    </p>
-    <p>
-        <button onclick="stopWatch()">Stop Watching Acceleration</button>
-    </p>
-    <div id="accelerometer">Waiting for accelerometer...</div>
-  </body>
-</html>
+
+        // Audio player
+        //
+        var my_media = null;
+        var mediaTimer = null;
+
+        // Play audio
+        //
+        function playAudio(src) {
+            // Create Media object from src
+            my_media = new Media(src, onSuccess, onError);
+
+            // Play audio
+            my_media.play();
+
+            // Update my_media position every second
+            if (mediaTimer == null) {
+                mediaTimer = setInterval(function() {
+                    // get my_media position
+                    my_media.getCurrentPosition(
+                        // success callback
+                        function(position) {
+                            if (position > -1) {
+                                setAudioPosition((position) + " sec");
+                            }
+                        },
+                        // error callback
+                        function(e) {
+                            console.log("Error getting pos=" + e);
+                            setAudioPosition("Error: " + e);
+                        }
+                    );
+                }, 1000);
+            }
+        }
+
+        // Pause audio
+        //
+        function pauseAudio() {
+            if (my_media) {
+                my_media.pause();
+            }
+        }
+
+        // Stop audio
+        //
+        function stopAudio() {
+            if (my_media) {
+                my_media.stop();
+            }
+            clearInterval(mediaTimer);
+            mediaTimer = null;
+        }
+
+        // onSuccess Callback
+        //
+        function onSuccess() {
+            console.log("playAudio():Audio Success");
+        }
+
+        // onError Callback
+        //
+        function onError(error) {
+            alert('code: '    + error.code    + '\n' +
+                  'message: ' + error.message + '\n');
+        }
+
+        // Set audio position
+        //
+        function setAudioPosition(position) {
+            document.getElementById('audio_position').innerHTML = position;
+        }
+
+        </script>
+      </head>
+      <body>
+        <a href="#" class="btn large" onclick="playAudio('http://audio.ibeat.org/content/p1rj1s/p1rj1s_-_rockGuitar.mp3');">Play Audio</a>
+        <a href="#" class="btn large" onclick="pauseAudio();">Pause Playing Audio</a>
+        <a href="#" class="btn large" onclick="stopAudio();">Stop Playing Audio</a>
+        <p id="audio_position"></p>
+      </body>
+    </html>
+
 
 
